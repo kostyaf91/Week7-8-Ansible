@@ -32,4 +32,8 @@
 
   - name: "Restart container"
     shell: docker restart bootcampapp 
+    
+  - name: Execute a command
+    ansible.builtin.command: "false"
+    debugger: on_failed
 
