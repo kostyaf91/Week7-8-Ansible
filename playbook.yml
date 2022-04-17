@@ -28,7 +28,7 @@
       mode: u=r,g=r,o=r
 
   - name: "Copy .env to Docker container"
-    shell: docker cp /home/ubuntu/.env bootcampapp:bootcamp-app/.env
+    shell: docker cp /home/ubuntu/.env bootcampapp:/home/ubuntu/myagent/_work/1/s/.env
 
   - name: "Restart container"
     shell: docker restart bootcampapp 
