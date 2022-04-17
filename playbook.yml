@@ -23,7 +23,7 @@
   - name: ".env template"
     template:
       src: './.env'
-      dest: '/home/ubuntu'
+      dest: '/home/ubuntu/bootcampapp'
       owner: 'ubuntu'
       mode: u=r,g=r,o=r
 
