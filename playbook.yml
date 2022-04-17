@@ -15,10 +15,10 @@
     shell: docker login -u {{ acrLogin }} -p {{ acrPass }} {{ registry }}
 
   - name: "Remove old container"
-    shell: docker rm -f kostyabootcampimage || true
+    shell: docker rm -f bootcampApp || true
 
   - name: "Docker run"
-    shell: docker run -d --restart=always --name kostyabootcampimage -p 8080:8080 {{ registry }}/bootcampApp:{{ tag }}
+    shell: docker run -d --restart=always --name bootcampApp -p 8080:8080 {{ registry }}/bootcampApp:{{ tag }}
 
   - name: ".env template"
     template:
