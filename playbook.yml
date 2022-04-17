@@ -18,7 +18,7 @@
     shell: docker rm -f kostyabootcampimage || true
 
   - name: "Docker run"
-    shell: docker run -d --restart=always --name kostyabootcampimage -p 8080:8080 {{ registry }}/kostyabootcampimage:{{ tag }}
+    shell: docker run -d --restart=always --name kostyabootcampimage -p 8080:8080 {{ registry }}/bootcampApp:{{ tag }}
 
   - name: ".env template"
     template:
@@ -28,8 +28,8 @@
       mode: u=r,g=r,o=r
 
   - name: "Copy .env to Docker container"
-    shell: docker cp /home/ubuntu/.env kostyabootcampimage:bootcamp-app/.env
+    shell: docker cp /home/ubuntu/.env bootcampApp:{{ tag }}/.env
 
   - name: "Restart container"
-    shell: docker restart {{ IMAGEREPOSITORY }}
+    shell: docker restart {{ bootcampApp }}
 
