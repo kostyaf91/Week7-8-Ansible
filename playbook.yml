@@ -1,48 +1,35 @@
-- hosts: webservers
+- hosts: servers
   become: "yes"
   gather_facts: "yes"
   tasks:
-  - name: Download package information from all configured sources
+  - name: "Update packages"
     shell: apt update
-  - name: Update nodejs package
-    shell: "curl -fsSL https://deb.nodesource.com/setup_14.x | sudo -E bash -"
-  - name: Install nodejs
-    apt:
-      name: nodejs
-      state: present
-  - name: Copy artifact
-    synchronize:
-      src: /home/ubuntu/myagent/_work/r1/a/_weight-tracker-ansbile.git/ansible/s/
-      dest: /home/ubuntu/node-weight-tracker/
-  - name: Install the project dependencies
-    shell: >
-      cd node-weight-tracker
-      npm install @hapi/hapi@19 @hapi/bell@12 @hapi/boom@9 @hapi/cookie@11
-      @hapi/inert@6 @hapi/joi@17 @hapi/vision@6 dotenv@8 ejs@3 postgres@1
-      npm install --save-dev nodemon@2
-  - name: Copy .env
-    synchronize:
-      src: /home/ubuntu/myagent/_work/r1/a/.env
-      dest: /home/ubuntu/node-weight-tracker
-  - name: Install pm2
-    shell: npm install pm2 -g
-  - name: Npm initialization
-    shell: npm init -y
-    args:
-      chdir: /home/ubuntu/node-weight-tracker/
-  - name: Running NPM install
-    shell: npm install
-    register: npm_finished
-    args:
-      chdir: /home/ubuntu/node-weight-tracker/
-  - name: Init DB
-    shell: npm run initdb
-    args:
-      chdir: '/home/ubuntu/node-weight-tracker/'
-  - name: Start app
-    shell: pm2 start npm -- run dev pm2 save && pm2 startup
-    args:
-      chdir: '/home/ubuntu/node-weight-tracker/'
 
-  - name: Save process autorun
-    shell: pm2 save
+  - name: "Install Docker"
+    shell: apt install docker.io -y
+
+  - name: "Change mode to docker.sock"
+    shell: chmod 666 /var/run/docker.sock
+
+  - name: "Login to ACR"
+    shell: docker login -u {{ acrLogin }} -p {{ acrPass }} {{ registry }}
+
+  - name: "Remove old container"
+    shell: docker rm -f kostyabootcampimage || true
+
+  - name: "Docker run"
+    shell: docker run -d --restart=always --name kostyabootcampimage -p 8080:8080 {{ registry }}/kostyabootcampimage:{{ tag }}
+
+  - name: ".env template"
+    template:
+      src: './.env'
+      dest: '/home/ubuntu'
+      owner: 'ubuntu'
+      mode: u=r,g=r,o=r
+
+  - name: "Copy .env to Docker container"
+    shell: docker cp /home/ubuntu/.env kostyabootcampimage:bootcamp-app/.env
+
+  - name: "Restart container"
+    shell: docker restart {{ IMAGEREPOSITORY }}
+
